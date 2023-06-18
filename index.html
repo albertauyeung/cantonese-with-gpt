@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+  <title>GPT粵語文章生成器</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+    crossorigin="anonymous"></script>
+
+  <style>
+  </style>
+</head>
+<body class="p-8">
+
+  <div id="app" class="container mx-auto">
+
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold">GPT 粵語文章生成器</h1>
+        <p class="text-gray-500">利用 AI 及 粵拼學習粵語</p>
+    </div>
+
+    <div id="input-form">
+        
+        <select id="topic" class="w-full p-2.5 border mb-4">
+            <option selected value="">選擇主題</option>
+        </select>
+
+        <select id="age_range" class="w-full p-2.5 border mb-4">
+            <option selected value="三至五">3-5 歲</option>
+            <option value="五至八">5-8 歲</option>
+            <option value="九至十二">9-12 歲</option>
+            <option value="十三至十八">13-18 歲</option>
+        </select>
+
+        <select id="num_sentence" class="w-full p-2.5 border mb-4">
+            <option selected value="三">3 句</option>
+            <option value="五">5 句</option>
+            <option value="十">10 句</option>
+        </select>
+
+        <input type="text" id="keywords" class="w-full p-2.5 border mb-4" placeholder="關鍵詞（選填，以逗號分隔）"/>
+
+        <div class="flex justify-center">
+        <button
+            id="submit_button"
+            class="w-120 p-2.5 border mb-4 hover:bg-gray-100"
+            @click="greet">⚙️ 生成文章</button>
+        </div>
+
+    </div>
+
+    <div id="output" class="border p-4">
+
+    </div>
+
+  </div>
+
+  <script>
+    var topics = [
+        {"icon": "📚", "name": "學校生活"},
+        {"icon": "🎉", "name": "節日及慶祝活動"},
+        {"icon": "🍎", "name": "水果"},
+        {"icon": "🐼", "name": "動物"},
+        {"icon": "🌞", "name": "天氣現象"},
+        {"icon": "🚀", "name": "太空"},
+        {"icon": "🎨", "name": "藝術"},
+        {"icon": "🍕", "name": "食物及飲品"},
+        {"icon": "🏊‍♀️", "name": "運動項目"},
+        {"icon": "🏰", "name": "世界各地建築"},
+        {"icon": "🌳", "name": "自然世界"},
+        {"icon": "🌎", "name": "國家地理位置"},
+        {"icon": "🧬", "name": "科學知識"},
+        {"icon": "👑", "name": "歷史事件及人物"},
+        {"icon": "🍁", "name": "季節氣候和風景"},
+        {"icon": "🎓", "name": "職業技能"},
+        {"icon": "🌱", "name": "環保及永續發展"},
+        {"icon": "🎧", "name": "音樂"}
+    ];
+
+    $(document).ready(function() {
+        $.each(topics, function(i, topic) {
+            $('#topic').append($('<option>', {
+                value: topic.name,
+                text: topic.icon + ' ' + topic.name
+            }));
+        });
+
+        $("#submit_button").on("click", function() {
+            var topic = $("#topic").val();
+            var age_range = $("#age_range").val();
+            var num_sentence = $("#num_sentence").val();
+            var keywords = $("#keywords").val();
+
+            if (topic == "") {
+                alert("請選擇主題");
+                return;
+            }
+            if (age_range == "") {
+                alert("請選擇目標年齡");
+                return;
+            }
+            if (num_sentence == "") {
+                alert("請選擇文章長度");
+                return;
+            }
+
+            $("#output").html("<div class='text-center'>⚙️ 生成文章中...</div>");
+
+            $.ajax({
+                url: "https://azure-personal-apps.azurewebsites.net/api/cantonesewithgpt",
+                type: "POST",
+                data: JSON.stringify({
+                    "topic": topic,
+                    "age_range": age_range,
+                    "num_sentence": num_sentence,
+                    "keywords": keywords
+                }),
+                dataType: "json",
+                contentType: "application/json"
+            })
+                .done(function(json) {
+                    $("#output").empty();
+                    $.each(json, function(i, sentence) {
+                        row = $('<div class="flex flex-wrap mb-6">');
+                        $.each(sentence, function(j, word) {
+                            div = '<div class="w-16 text-center mb-2">';
+                            div += word.jyutping + '<span style="color: #4488AA">' + word.tone + '</span><br/>';
+                            div += '<span class="text-lg">' + word.character + '</span><br/>';
+                            div += '</div>';
+                            row.append(div);
+                        });
+                        $('#output').append($(row));
+                    });
+                });
+        });
+    });
+
+  </script>
+
+</body>
+</html>
