@@ -28,26 +28,77 @@
             <option selected value="">選擇主題</option>
         </select>
 
-        <select id="age_range" class="w-full p-2.5 border mb-4">
-            <option selected value="三至五">3-5 歲</option>
-            <option value="五至八">5-8 歲</option>
-            <option value="九至十二">9-12 歲</option>
-            <option value="十三至十八">13-18 歲</option>
-        </select>
+        <div class="flex mb-4 p-2.5">
+            <div class="flex-none items-center">輸出類型：</div>
+            <div class="flex-1 items-center pl-4">
+                <input id="output_type_1" type="radio" value="科普" name="output_type" class="w-4 h-4" checked>
+                <label for="output_type_1" class="w-full py-4 ml-2">科普</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="output_type_2" type="radio" value="對話" name="output_type" class="w-4 h-4">
+                <label for="output_type_2" class="w-full py-4 ml-2">對話</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="output_type_3" type="radio" value="故事" name="output_type" class="w-4 h-4">
+                <label for="output_type_3" class="w-full py-4 ml-2">故事</label>
+            </div>
+        </div>
 
-        <select id="num_sentence" class="w-full p-2.5 border mb-4">
-            <option selected value="三">3 句</option>
-            <option value="五">5 句</option>
-            <option value="十">10 句</option>
-        </select>
+        <div class="flex mb-4 p-2.5">
+            <div class="flex-none items-center">文章語言：</div>
+            <div class="flex-1 items-center pl-4 text-center">
+                <input id="language_type_1" type="radio" value="書面語" name="language_type" class="w-4 h-4" checked>
+                <label for="language_type_1" class="w-full py-4 ml-2">書面語</label>
+            </div>
+            <div class="flex-1 items-center pl-4 text-center">
+                <input id="language_type_2" type="radio" value="口語" name="language_type" class="w-4 h-4">
+                <label for="language_type_2" class="w-full py-4 ml-2">口語</label>
+            </div>
+        </div>
 
-        <input type="text" id="keywords" class="w-full p-2.5 border mb-4" placeholder="關鍵詞（選填，以逗號分隔）"/>
+        <div class="flex mb-4 p-2.5">
+            <div class="flex-none items-center">目標年齡：</div>
+            <div class="flex-1 items-center pl-4">
+                <input id="age_range_1" type="radio" value="三至五" name="age_range" class="w-4 h-4" checked>
+                <label for="age_range_1" class="w-full py-4 ml-2">3-5 歲</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="age_range_2" type="radio" value="五至八" name="age_range" class="w-4 h-4">
+                <label for="age_range_2" class="w-full py-4 ml-2">5-8 歲</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="age_range_3" type="radio" value="九至十二" name="age_range" class="w-4 h-4">
+                <label for="age_range_3" class="w-full py-4 ml-2">9-12 歲</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="age_range_4" type="radio" value="十三至十八" name="age_range" class="w-4 h-4">
+                <label for="age_range_4" class="w-full py-4 ml-2">13-18 歲</label>
+            </div>
+        </div>
+
+        <div class="flex mb-4 p-2.5">
+            <div class="flex-none items-center">文章長度：</div>
+            <div class="flex-1 items-center pl-4">
+                <input id="num_sentence_1" type="radio" value="三" name="num_sentence" class="w-4 h-4" checked>
+                <label for="num_sentence_1" class="w-full py-4 ml-2">3 句</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="num_sentence_2" type="radio" value="五" name="num_sentence" class="w-4 h-4">
+                <label for="num_sentence_2" class="w-full py-4 ml-2">5 句</label>
+            </div>
+            <div class="flex-1 items-center pl-4">
+                <input id="num_sentence_3" type="radio" value="十" name="num_sentence" class="w-4 h-4">
+                <label for="num_sentence_3" class="w-full py-4 ml-2">10 句</label>
+            </div>
+        </div>
+
+        <input type="text" id="keywords" class="w-full p-2.5 border mb-4" placeholder="期望出現的關鍵詞（選填，以逗號分隔）"/>
 
         <div class="flex justify-center">
         <button
             id="submit_button"
             class="w-120 p-2.5 border mb-4 hover:bg-gray-100"
-            @click="greet">⚙️ 生成文章</button>
+            @click="greet">💡 生成文章</button>
         </div>
 
     </div>
@@ -59,6 +110,9 @@
   </div>
 
   <script>
+    var endpoint = "http://localhost:7071/api"
+    //var endpoint = "https://azure-personal-apps.azurewebsites.net/api"
+
     var topics = [
         {"icon": "📚", "name": "學校生活"},
         {"icon": "🎉", "name": "節日及慶祝活動"},
@@ -90,30 +144,27 @@
 
         $("#submit_button").on("click", function() {
             var topic = $("#topic").val();
-            var age_range = $("#age_range").val();
-            var num_sentence = $("#num_sentence").val();
+            var output_type = $("input[name=output_type]:checked").val();
+            var language_type = $("input[name=language_type]:checked").val();
+            var age_range = $("input[name=age_range]:checked").val();
+            var num_sentence = $("input[name=num_sentence]:checked").val();
             var keywords = $("#keywords").val();
 
             if (topic == "") {
                 alert("請選擇主題");
                 return;
             }
-            if (age_range == "") {
-                alert("請選擇目標年齡");
-                return;
-            }
-            if (num_sentence == "") {
-                alert("請選擇文章長度");
-                return;
-            }
-
-            $("#output").html("<div class='text-center'>⚙️ 生成文章中...</div>");
+            
+            $("#output").html("<div class='text-center'>⚙️ 請稍等...</div>");
+            $("#submit_button").prop('disabled', true);
 
             $.ajax({
-                url: "https://azure-personal-apps.azurewebsites.net/api/cantonesewithgpt",
+                url: endpoint + "/cantonesewithgpt",
                 type: "POST",
                 data: JSON.stringify({
                     "topic": topic,
+                    "output_type": output_type,
+                    "language_type": language_type,
                     "age_range": age_range,
                     "num_sentence": num_sentence,
                     "keywords": keywords
@@ -134,6 +185,7 @@
                         });
                         $('#output').append($(row));
                     });
+                    $("#submit_button").prop('disabled', false);
                 });
         });
     });
