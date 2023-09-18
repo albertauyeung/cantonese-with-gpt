@@ -160,6 +160,7 @@
             $.ajax({
                 url: endpoint,
                 type: "POST",
+                crossDomain: true,
                 data: JSON.stringify({
                     "topic": topic,
                     "output_type": output_type,
