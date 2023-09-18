@@ -158,7 +158,7 @@
             $("#submit_button").prop('disabled', true);
 
             $.ajax({
-                url: endpoint + "/cantonesewithgpt",
+                url: endpoint,
                 type: "POST",
                 data: JSON.stringify({
                     "topic": topic,
